@@ -1,6 +1,5 @@
 package org.embeddedt.archaicfix;
 
-import com.falsepattern.chunk.api.DataRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.SidedProxy;
@@ -19,7 +18,6 @@ import net.minecraftforge.common.MinecraftForge;
 import org.embeddedt.archaicfix.asm.EarlyStringPool;
 import org.embeddedt.archaicfix.asm.TargetedMod;
 import org.embeddedt.archaicfix.chunkapi.ChunkAPICompat;
-import org.embeddedt.archaicfix.chunkapi.ChunkLightingDataManager;
 import org.embeddedt.archaicfix.config.ArchaicConfig;
 import org.embeddedt.archaicfix.ducks.IAcceleratedRecipe;
 import org.embeddedt.archaicfix.proxy.CommonProxy;
@@ -62,6 +60,9 @@ public class ArchaicFix
             ArchaicConfig.enablePhosphor = false;
             ArchaicLogger.LOGGER.info("Supernova detected, disabling Phosphor.");
         }
+        if (ArchaicConfig.enablePhosphor && Loader.isModLoaded(TargetedMod.CUBIC_CHUNKS.ModID())) {
+            ArchaicLogger.LOGGER.info("Cubic Chunks detected, disabling ArchaicFix Phosphor hooks.");
+        }
         if(Entity.nextEntityID == 0) {
             Entity.nextEntityID = 1;
             ArchaicLogger.LOGGER.info("Fixed MC-111480");
@@ -80,7 +81,8 @@ public class ArchaicFix
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        if (Loader.isModLoaded(TargetedMod.CHUNKAPI.ModID()) && ArchaicConfig.enablePhosphor)
+        if (Loader.isModLoaded(TargetedMod.CHUNKAPI.ModID()) && ArchaicConfig.enablePhosphor
+                && !Loader.isModLoaded(TargetedMod.CUBIC_CHUNKS.ModID()))
         {
             ChunkAPICompat.init(); // This must be a call to the class because otherwise the JVM will try to load DataManager.
         }
